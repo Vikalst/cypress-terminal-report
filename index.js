@@ -139,6 +139,9 @@ async function responseBodyParser(body) {
 
 function nodeAddLogsPrinter(on, options = {}) {
   const chalk = require('chalk');
+  const fs = require('fs');
+  const logToFile = options.logToFile || false;
+  const logFile = options.logFile || 'cypress-terminal-report.log';
 
   on('task', {
     terminalLogs: messages => {
@@ -199,7 +202,14 @@ function nodeAddLogsPrinter(on, options = {}) {
         if (message.length > trim) {
           processedMessage = message.substring(0, trim) + ' ...';
         }
-        console.log(chalk[color](typeString + icon + ' '), processedMessage);
+
+        if (logToFile) {
+          fs.appendFile(logFile, typeString + icon + ' ' + processedMessage + '\n\n', function (err) {
+            if (err) throw err;
+          });
+        } else {
+          console.log(chalk[color](typeString + icon + ' '), processedMessage);
+        }
       });
 
       console.log('\n\n');
